@@ -90,7 +90,6 @@
 		MessageBox
 	} from 'element-ui';
 
-	const http = new $api();
 	class Userr {
 		id: number; //id
 		did: number; //不管
@@ -132,6 +131,7 @@
 		}
 	})
 	export default class User extends Vue {
+		http:any =null;
 		tableData: Userr[] = [];
 		loads: any = {
 			table: false
@@ -150,12 +150,13 @@
 		pageInfo: PageInfo = new PageInfo(0, 1, 0);
 
 		created() {
+			this.http = new $api();
 			this.getList();
 		}
 
 		getList() {
 			this.loads.table = true;
-			http.userList({
+			this.http.userList({
 				page: this.pageInfo.nowPage,
 				nickname: this.search.name,
 				phone: this.search.phone,
@@ -227,7 +228,7 @@
 				cancelButtonText: '取消',
 				type: 'warning'
 			}).then(() => {
-				http.editUser({
+				this.http.editUser({
 					id: row.id
 				}).then((res: any) => {
 					Notification({
@@ -245,7 +246,7 @@
 				cancelButtonText: '取消',
 				type: 'warning'
 			}).then(() => {
-				http.delUser({
+				this.http.delUser({
 					id: row.id
 				}).then((res: any) => {
 					this.getList();

@@ -28,6 +28,7 @@
 
     @Component
     export default class choseRole extends Vue {
+        http:any = null;
         roleList: any = [];
         name: string = '';
         checkAll: any = false;
@@ -89,11 +90,12 @@
         }
 
         created() {
+            this.http = new $api();
             this.getList();
             this.name = this.nowname;
         }
         getList() {
-            new $api().editRole({
+            this.http.editRole({
                 id: this.nowid
             }).then((res: any) => {
                 this.roleList = res.data;

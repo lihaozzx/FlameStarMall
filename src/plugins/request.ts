@@ -9,7 +9,7 @@ import store from '../store'
 const turl = process.env.NODE_ENV === 'development' ? '/test' : 'http://uu.scyouyou.com/admin.php';
 
 export default class extends Vue {
-	token: string;
+	token: string ;
 	request: any = axios.create();
 	url: string = turl;
 	http: any = this.request;

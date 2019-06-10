@@ -39,10 +39,10 @@
         Emit
     } from 'vue-property-decorator';
     import $api from '@/plugins/request';
-    const http = new $api();
 
     @Component
     export default class choseAdmin extends Vue {
+        http:any = null;
         @Prop()
         dialogVisible!: boolean;
         @Prop()
@@ -109,6 +109,7 @@
             this.ruleForm.username = this.adminName;
         }
         created() {
+            this.http = new $api();
             if (this.adminId === undefined) {
                 //新增
                 this.isadd = true;
@@ -116,12 +117,12 @@
                 this.ruleForm.username = this.adminName;
                 this.getRole();
             }
-            http.roleList().then((res: any) => {
+            this.http.roleList().then((res: any) => {
                 this.roles = res.data;
             })
         }
         getRole() {
-            http.adminRole({
+            this.http.adminRole({
                 id: this.adminId
             }).then((res: any) => {
                 res.data.forEach((role: any) => {
@@ -142,7 +143,7 @@
         }
         saveAdmin() {
             if (this.isadd) {
-                http.saveAdmin({
+                this.http.saveAdmin({
                     username: this.ruleForm.username,
                     password: this.ruleForm.pass,
                     role: this.ruleForm.role,
@@ -151,7 +152,7 @@
                     this.$emit('saveSuccess');
                 })
             } else {
-                http.editAdmin({
+                this.http.editAdmin({
                     id: this.adminId,
                     username: this.ruleForm.username,
                     password: this.ruleForm.pass,
