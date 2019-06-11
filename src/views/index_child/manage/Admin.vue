@@ -58,7 +58,6 @@
 		MessageBox
 	} from 'element-ui';
 
-	const http = new $api();
 	class Adminn {
 		id: number;
 		username: string;
@@ -76,6 +75,7 @@
 		}
 	})
 	export default class Admin extends Vue {
+		http!:$api;
 		tableData: Adminn[] = [];
 		searchName: string = '';
 		dialogVisible: boolean = false;
@@ -84,11 +84,12 @@
 		nowshowname: string = '';
 
 		created() {
+			this.http = new $api();
 			this.getList();
 		}
 
 		getList() {
-			http.adminList({
+			this.http.adminList({
 				key: this.searchName
 			}).then((res: any) => {
 				this.tableData = [];
@@ -122,7 +123,7 @@
 				cancelButtonText: '取消',
 				type: 'warning'
 			}).then(() => {
-				http.delAdmin({
+				this.http.delAdmin({
 					id: row.id
 				}).then((res: any) => {
 					this.getList();

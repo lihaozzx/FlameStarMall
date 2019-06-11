@@ -24,6 +24,7 @@ import {
 	Col,
 	CheckboxGroup,
 	Radio,
+	RadioButton,
 	RadioGroup,
 	Loading
 } from 'element-ui';
@@ -57,6 +58,7 @@ Vue.use(FormItem);
 
 Vue.use(Col);
 Vue.use(Radio);
+Vue.use(RadioButton);
 Vue.use(RadioGroup);
 Vue.use(Loading.directive);
 

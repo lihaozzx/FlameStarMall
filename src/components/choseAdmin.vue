@@ -1,5 +1,5 @@
 <template>
-    <el-dialog :title="isadd?'新增管理员':'修改管理员'" :visible.sync="dialogVisible" width="50%" :before-close="closeDialog">
+    <el-dialog :title="isadd?'新增管理员':'修改管理员'" :visible.sync="dialogVisible" width="50%" :before-close="closeDialog" :modal-append-to-body="false">
         <div class="role_root">
             <el-form label-width="200px" :rules="rules" ref="ruleForm" :model="ruleForm" status-icon>
                 <el-form-item label="用户名" prop="username" autocomplete="off">
@@ -42,11 +42,11 @@
 
     @Component
     export default class choseAdmin extends Vue {
-        http:any = null;
+        http: any = null;
         @Prop()
         dialogVisible!: boolean;
         @Prop()
-        adminId!: number;
+        adminId!: string;
         @Prop()
         adminName!: string;
         isadd: boolean = false;
@@ -122,15 +122,18 @@
             })
         }
         getRole() {
-            this.http.adminRole({
-                id: this.adminId
-            }).then((res: any) => {
-                res.data.forEach((role: any) => {
-                    if (role.check === 1) {
-                        this.ruleForm.role = role.id;
-                    }
-                });
-            })
+            if (this.adminId != '') {
+                this.http.adminRole({
+                    id: this.adminId
+                }).then((res: any) => {
+                    res.data.forEach((role: any) => {
+                        if (role.check === 1) {
+                            this.ruleForm.role = role.id;
+                        }
+                    });
+                })
+            }
+
         }
         closeDialog() {
             this.ruleForm = {
@@ -139,6 +142,7 @@
                 checkPass: '',
                 role: ''
             };
+            this.$refs.ruleForm.resetFields();
             this.$emit('update:dialogVisible', false);
         }
         saveAdmin() {
@@ -185,4 +189,24 @@
             }
         }
     }
+    .role_root::-webkit-scrollbar {
+		/*滚动条整体样式*/
+		width: 10px;
+		/*高宽分别对应横竖滚动条的尺寸*/
+		height: 1px;
+	}
+
+	.role_root::-webkit-scrollbar-thumb {
+		/*滚动条里面小方块*/
+		border-radius: 10px;
+		box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+		background: #535353;
+	}
+
+	.role_root::-webkit-scrollbar-track {
+		/*滚动条里面轨道*/
+		box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+		border-radius: 10px;
+		background: #EDEDED;
+	}
 </style>

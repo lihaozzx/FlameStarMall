@@ -7,7 +7,7 @@ import $qs from 'qs';
 import utils from '@/plugins/common'
 import store from '../store'
 const turl = process.env.NODE_ENV === 'development' ? '/test' : 'http://uu.scyouyou.com/admin.php';
-
+export const url = turl;
 export default class extends Vue {
 	token: string ;
 	request: any = axios.create();
@@ -263,6 +263,31 @@ export default class extends Vue {
 			})
 		})
 	}
+	userInfo(data={}){
+		return new Promise((resolve, reject) => {
+			this.request.post('/user/user_info',$qs.stringify(data)).then((res: any) => {
+				if (res.code === 200) {
+					resolve(res);
+				} else {
+					this.err(res.msg);
+					reject(res);
+				}
+			})
+		})
+	}
+	saveUser(data={}){
+		return new Promise((resolve, reject) => {
+			this.request.post('/user/add_user',$qs.stringify(data)).then((res: any) => {
+				if (res.code === 200) {
+					resolve(res);
+				} else {
+					this.err(res.msg);
+					reject(res);
+				}
+			})
+		})
+	}
+	
 	editUser(data={}){
 		return new Promise((resolve, reject) => {
 			this.request.post('/user/edit_user',$qs.stringify(data)).then((res: any) => {
@@ -287,5 +312,28 @@ export default class extends Vue {
 			})
 		})
 	}
-	
+	dealerList(data={}){
+		return new Promise((resolve, reject) => {
+			this.request.get('/dealer/dealer_list',{params:data}).then((res: any) => {
+				if (res.code === 200) {
+					resolve(res);
+				} else {
+					this.err(res.msg);
+					reject(res);
+				}
+			})
+		})
+	}
+	dealerInfo(data={}){
+		return new Promise((resolve, reject) => {
+			this.request.post('/dealer/dealer_info',$qs.stringify(data)).then((res: any) => {
+				if (res.code === 200) {
+					resolve(res);
+				} else {
+					this.err(res.msg);
+					reject(res);
+				}
+			})
+		})
+	}
 }

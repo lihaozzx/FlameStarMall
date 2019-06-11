@@ -52,6 +52,7 @@
 
 	@ Component
 	export default class Index extends Vue {
+		http!:$api;
 		collapse: boolean = false;
 		editableTabsValue: string = 'indes';
 		editableTabs: Table[] = [{
@@ -64,7 +65,8 @@
 		@ Mutation('setToken') setToken:any;
 
 		created() {
-			new $api().getAuth().then((res:any)=>{
+			this.http = new $api();
+			this.http.getAuth().then((res:any)=>{
 				this.menuList = res.data
 			})
 		}
@@ -95,7 +97,7 @@
 			this.editableTabsValue=content;
 		}
 		logOut() {
-			new $api().logout().then((res:any)=>{
+			this.http.logout().then((res:any)=>{
 				this.setToken('');
 				new $utils().delCookie('token')
 				this.$router.push({ name: 'login' });
@@ -108,13 +110,13 @@
 	.index_head {
 		width: 100%;
 		height: 50px;
-		background-color: cornflowerblue;
+		background-color: #6495ed;
 		padding: 10px;
 		box-sizing: border-box;
 		display: flex;
 
 		.el-icon-menu {
-			background-color: cornflowerblue;
+			background-color: #6495ed;
 			color: white;
 			font-size: 30px;
 			width: 30px;

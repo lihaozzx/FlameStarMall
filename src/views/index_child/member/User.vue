@@ -22,10 +22,10 @@
 				</el-table-column>
 				<el-table-column prop="nickname" label="昵称"></el-table-column>
 				<el-table-column prop="phone" label="手机号"></el-table-column>
-				<el-table-column prop="integral" label="积分" sortable="custom" ></el-table-column>
-				<el-table-column prop="money" label="累计销售额" sortable="custom" ></el-table-column>
-				<el-table-column prop="last_log_time" label="注册时间" sortable="custom"  width="190"></el-table-column>
-				<el-table-column prop="reg_time" label="最后登录时间" sortable="custom"  width="190"></el-table-column>
+				<el-table-column prop="integral" label="积分" sortable="custom"></el-table-column>
+				<el-table-column prop="money" label="累计销售额" sortable="custom"></el-table-column>
+				<el-table-column prop="last_log_time" label="最后登录时间" sortable="custom" width="190"></el-table-column>
+				<el-table-column prop="reg_time" label="注册时间" sortable="custom" width="190"></el-table-column>
 				<el-table-column prop="dealer" label="供应商" width="220"></el-table-column>
 				<!-- <el-table-column prop="status" label="用户状态" width="100" align="center"></el-table-column> -->
 				<el-table-column label="操作" align="center">
@@ -37,7 +37,7 @@
 								</el-button>
 							</el-tooltip>
 							<el-tooltip class="item" effect="dark" content="会员总览" placement="top-start">
-								<el-button type="warning" size="mini" class="mini">
+								<el-button type="warning" size="mini" class="mini" @click="seeInfo(scope.row)">
 									<i class="el-icon-s-order"></i>
 								</el-button>
 							</el-tooltip>
@@ -70,10 +70,8 @@
 			<el-pagination layout="prev, pager, next" :total="pageInfo.total" :page-size="pageInfo.limit"
 				:current-page="pageInfo.nowPage" @current-change="pageChange"></el-pagination>
 		</div>
-		<chose-admin :dialogVisible.sync="dialogVisible" @saveSuccess="successFun('添加')"></chose-admin>
-		<chose-admin :dialogVisible.sync="dialogVisible2" @changeSuccess="successFun('修改')" :adminId="nowshowid"
-			:adminName="nowshowname">
-		</chose-admin>
+		<add-member v-if="dialogVisible" :dialogVisible.sync="dialogVisible" @saveSuccess="saveSuccess"></add-member>
+		<user-info :dialogVisible.sync="dialogVisible2" :id="nowshowid"></user-info>
 	</div>
 </template>
 
@@ -82,9 +80,11 @@
 		Component,
 		Vue,
 		Watch,
+		Prop,
 	} from 'vue-property-decorator';
 	import $api from '@/plugins/request';
-	import choseAdmin from '@/components/choseAdmin.vue';
+	import addMember from '@/components/addMember.vue';
+	import userInfo from '@/components/userInfo.vue'
 	import {
 		Notification,
 		MessageBox
@@ -127,11 +127,18 @@
 
 	@Component({
 		components: {
-			choseAdmin
+			addMember,
+			userInfo
 		}
 	})
 	export default class User extends Vue {
-		http:any =null;
+		@Prop()
+		did!: string;
+		@Watch('did')
+		onDidChange() {
+			this.getList();
+		}
+		http: any = null;
 		tableData: Userr[] = [];
 		loads: any = {
 			table: false
@@ -139,13 +146,13 @@
 		search: any = {
 			name: '',
 			phone: '',
-			order:''
+			order: ''
 		}
 		dialogVisible: boolean = false;
 		dialogVisible2: boolean = false;
 		nowshowid: string = '';
 		nowshowname: string = '';
-		timer:any = null;
+		timer: any = null;
 
 		pageInfo: PageInfo = new PageInfo(0, 1, 0);
 
@@ -160,7 +167,8 @@
 				page: this.pageInfo.nowPage,
 				nickname: this.search.name,
 				phone: this.search.phone,
-				order_by:this.search.order
+				order_by: this.search.order,
+				did: this.did
 			}).then((res: any) => {
 				this.tableData = [];
 				res.data.data.forEach((r: any) => {
@@ -173,12 +181,12 @@
 		setPage(data: any) {
 			this.pageInfo = new PageInfo(data.total_rows, data.page, data.limit);
 		}
-		pageChange(p:number){
-			if(this.timer!=null){
+		pageChange(p: number) {
+			if (this.timer != null) {
 				clearTimeout(this.timer);
 			}
 			return this.timer = setTimeout(() => {
-				this.pageInfo.nowPage=p;
+				this.pageInfo.nowPage = p;
 				this.getList();
 			}, 300);
 		}
@@ -186,43 +194,42 @@
 			this.getList();
 		}
 		searchEmpty() {
-			if(this.search.name==''&&this.search.phone=='')return;
+			if (this.search.name == '' && this.search.phone == '') return;
 			this.search = {
 				name: '',
 				phone: '',
-				order:this.search.order
+				order: this.search.order
 			}
 			this.getList();
 		}
-		tableSort(val:any){
-			if(val.order!==null){
-				if(val.order==='descending'){//dese
-					this.search.order = '["'+val.prop+'","desc"]';
-				}else{//ase
-					this.search.order = '["'+val.prop+'","asc"]';
+		tableSort(val: any) {
+			if (val.order !== null) {
+				if (val.order === 'descending') { //dese
+					this.search.order = '["' + val.prop + '","desc"]';
+				} else { //ase
+					this.search.order = '["' + val.prop + '","asc"]';
 				}
-			}else{
+			} else {
 				this.search.order = '';
 			}
 			this.getList();
 		}
 
-		successFun(k: string) {
+		seeInfo(row:Userr){
+			this.dialogVisible2 = true;
+			this.nowshowid = row.id+'';
+		}
+		saveSuccess() {
+			this.getList();
+			this.dialogVisible = false;
 			Notification({
 				title: '成功',
 				dangerouslyUseHTMLString: true,
-				message: '<strong style="color:#3CB371">' + k + '成功</strong>',
+				message: '<strong style="color:#3CB371">添加成功</strong>',
 				showClose: false
 			});
-			this.dialogVisible2 = this.dialogVisible = false;
-			this.getList();
 		}
-		changeAdmin(row: any) {
-			this.dialogVisible2 = true;
-			this.nowshowid = row.id;
-			this.nowshowname = row.username;
-		}
-		resetPass(row:any){
+		resetPass(row: Userr) {
 			MessageBox.confirm('你确定重置密码吗？重置后该用户的密码变更为：123456', '提示', {
 				confirmButtonText: '确定',
 				cancelButtonText: '取消',
@@ -240,7 +247,7 @@
 				})
 			})
 		}
-		delUser(row: any) {
+		delUser(row: Userr) {
 			MessageBox.confirm('确定删除用户：' + row.nickname + ' 吗？', '提示', {
 				confirmButtonText: '确定',
 				cancelButtonText: '取消',
@@ -290,7 +297,8 @@
 		.table {
 			width: 100%;
 		}
-		.mini{
+
+		.mini {
 			padding: 5px 2px;
 		}
 	}

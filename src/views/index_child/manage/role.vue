@@ -68,7 +68,6 @@
 		MessageBox
 	} from 'element-ui';
 
-	const http = new $api();
 	class Rolee {
 		id: number;
 		name: string;
@@ -86,6 +85,7 @@
 		}
 	})
 	export default class Role extends Vue {
+		http!:$api;
 		tableData: Rolee[] = [];
 		searchName: string = '';
 		dialogVisible: boolean = false;
@@ -97,11 +97,12 @@
 		nowshowname: string = '';
 
 		created() {
+			this.http = new $api();
 			this.getList();
 		}
 
 		getList() {
-			http.roleList({
+			this.http.roleList({
 				key: this.searchName
 			}).then((res: any) => {
 				this.tableData=[];
@@ -125,7 +126,7 @@
 			this.getList();
 		}
 		subRole() {
-			http.saveRole({
+			this.http.saveRole({
 				name: this.authName,
 				role: this.cas.join(',')
 			}).then((res: any) => {
@@ -141,7 +142,7 @@
 			})
 		}
 		editRole() {
-			http.saveRole({
+			this.http.saveRole({
 				id: this.nowshowid,
 				name: this.authName,
 				role: this.cas.join(',')
@@ -172,7 +173,7 @@
 				cancelButtonText: '取消',
 				type: 'warning'
 			}).then(() => {
-				http.delRole({id:row.id}).then((res: any) => {
+				this.http.delRole({id:row.id}).then((res: any) => {
 					this.getList();
 					Notification({
 						title: '成功',

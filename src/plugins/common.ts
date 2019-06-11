@@ -1,4 +1,3 @@
-import Vue from 'vue';
 export default class {
 	ls: any;
 	ss: any;
@@ -58,8 +57,8 @@ export default class {
 	 * @param {Object} date Date()
 	 * @example formatTime('2018-1-29', '{y}/{m}/{d} {h}:{i}:{s}') // -> 2018/01/29 00:00:00
 	 */
-	formatTime(time: any, cFormat: string) {
-		if (arguments.length === 0) return null
+	formatTime(time: any, cFormat: string):string {
+		if (arguments.length === 0) return ''
 		if ((time + '').length === 10) {
 			time = +time * 1000
 		}
