@@ -10,7 +10,7 @@
             <!-- 详情  -->
             <div class="info">
                 <div class="head">
-                    <img :src="url+'/'+dealerInfo.head" alt="">
+                    <img :src="url+dealerInfo.head" alt="">
                 </div>
                 <div class="all">
                     <span>姓名：{{dealerInfo.name}}</span>
@@ -24,7 +24,7 @@
                 </div>
             </div>
             <div class="table_box">
-                <div class="one_table" >
+                <div class="one_table">
                     <div class="log_head">
                         <span class="title">订单信息</span>
                         <span class="more">更多>></span>
@@ -77,7 +77,20 @@
             <!-- 修改  -->
             <div class="from_box">
                 <div class="form_center">
-                    
+                    <el-form :model="from" :rules="rules" ref="ruleForm" label-width="80px">
+                        <el-form-item label="公司名称">
+                            <el-input v-model="from"></el-input>
+                        </el-form-item>
+                        <el-form-item label="姓名">
+                            <el-input v-model="from"></el-input>
+                        </el-form-item>
+                        <el-form-item label="快商通电脑端代码">
+                            <el-input v-model="from"></el-input>
+                        </el-form-item>
+                        <el-form-item label="快商通手机端代码">
+                            <el-input v-model="from"></el-input>
+                        </el-form-item>
+                    </el-form>
                 </div>
             </div>
         </div>
@@ -91,15 +104,13 @@
         Prop,
         Emit
     } from 'vue-property-decorator';
-    import $api, {
-        url
-    } from '@/plugins/request';
+    import $api,{imgUrl} from '@/plugins/request';
     import $utils from '@/plugins/common';
 
     @Component
     export default class choseAdmin extends Vue {
         http!: $api;
-        url = url;
+        url = imgUrl;
         @Prop()
         dialogVisible!: boolean;
         @Prop()
@@ -108,11 +119,13 @@
         onIdChange() {
             this.getInfo();
         }
+        form:any = {
 
+        }
         showModel: string = '1';
         dealerInfo: any = null;
         logInfo: any[] = [];
-        usersInfo:any[] = [];
+        usersInfo: any[] = [];
 
         created() {
             this.http = new $api();
@@ -210,12 +223,14 @@
                 }
             }
         }
-        .from_box{
+
+        .from_box {
             width: 100%;
             height: 100%;
             display: flex;
             justify-content: center;
-            .form_center{
+
+            .form_center {
                 width: 50%;
                 height: 100%;
 

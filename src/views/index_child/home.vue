@@ -4,7 +4,14 @@
 	</div>
 </template>
 
-<script>
+<script lang="ts">
+	import {
+		Component,
+		Vue,
+		Watch,
+	} from 'vue-property-decorator';
+	@ Component
+	export default class Home extends Vue {}
 </script>
 
 <style>

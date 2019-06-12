@@ -11,16 +11,18 @@ export default new Router({
 				path: '/',
 				name: 'index',
 				components: {
-					indes: () => import( /* webpackChunkName: "index_child_home" */ '@/views/index_child/home.vue'),
-					role_list: () => import( /* webpackChunkName: "index_child_role_list" */ '@/views/index_child/manage/Role.vue'),
-					admin_list:()=> import( /* webpackChunkName: "index_child_admin_list" */ '@/views/index_child/manage/Admin.vue'),
-					user_list:()=> import( /* webpackChunkName: "index_child_user_list" */ '@/views/index_child/member/User.vue'),
-
-					dealer_list:()=> import( /* webpackChunkName: "index_child_dealer_list" */ '@/views/index_child/dealer/List.vue'),
-					// stuInfo: resolve => require(['@/views/index_child/stuInfo.vue'], resolve),
-					// bank: resolve => require(['@/views/index_child/bank.vue'], resolve),
-					// logs: resolve => require(['@/views/index_child/logs.vue'], resolve),
-					// letter: resolve => require(['@/views/index_child/letter.vue'], resolve),
+					indes: () => import( /* webpackChunkName: "home" */ '@/views/index_child/Home.vue'),
+					//管理员中心
+					role_list: () => import( /* webpackChunkName: "role_list" */ '@/views/index_child/manage/Role.vue'),
+					admin_list:()=> import( /* webpackChunkName: "admin_list" */ '@/views/index_child/manage/Admin.vue'),
+					//会员管理
+					user_list:()=> import( /* webpackChunkName: "user_list" */ '@/views/index_child/member/User.vue'),
+					//商品管理
+					category:()=> import( /* webpackChunkName: "category" */ '@/views/index_child/commodity/Category.vue'),
+					brand_list:()=> import( /* webpackChunkName: "brand" */ '@/views/index_child/commodity/Brand.vue'),
+					//供应商管理
+					dealer_list:()=> import( /* webpackChunkName: "dealer_list" */ '@/views/index_child/dealer/List.vue'),
+					dealer_apply_list:()=> import( /* webpackChunkName: "dealer_apply_list" */ '@/views/index_child/dealer/Apply.vue'),
 				}
 			}],
 			meta: {

@@ -7,7 +7,7 @@ import $qs from 'qs';
 import utils from '@/plugins/common'
 import store from '../store'
 const turl = process.env.NODE_ENV === 'development' ? '/test' : 'http://uu.scyouyou.com/admin.php';
-export const url = turl;
+export const imgUrl = 'http://uu.scyouyou.com/';
 export default class extends Vue {
 	token: string ;
 	request: any = axios.create();
@@ -336,4 +336,125 @@ export default class extends Vue {
 			})
 		})
 	}
+	dealerApplyList(data={}){
+		return new Promise((resolve, reject) => {
+			this.request.get('dealer/dealer_apply_list',{params:data}).then((res: any) => {
+				if (res.code === 200) {
+					resolve(res);
+				} else {
+					this.err(res.msg);
+					reject(res);
+				}
+			})
+		})
+	}
+	rejectedApply(data={}){
+		return new Promise((resolve, reject) => {
+			this.request.post('/dealer/rejected',$qs.stringify(data)).then((res: any) => {
+				if (res.code === 200) {
+					resolve(res);
+				} else {
+					this.err(res.msg);
+					reject(res);
+				}
+			})
+		})
+	}
+	approvedApply(data={}){
+		return new Promise((resolve, reject) => {
+			this.request.post('/dealer/approved',$qs.stringify(data)).then((res: any) => {
+				if (res.code === 200) {
+					resolve(res);
+				} else {
+					this.err(res.msg);
+					reject(res);
+				}
+			})
+		})
+	}
+	goodsCategory(data={}){
+		return new Promise((resolve, reject) => {
+			this.request.post('/goods/category',$qs.stringify(data)).then((res: any) => {
+				if (res.code === 200) {
+					resolve(res);
+				} else {
+					this.err(res.msg);
+					reject(res);
+				}
+			})
+		})
+	}
+	addCategory(data={}){
+		return new Promise((resolve, reject) => {
+			this.request.post('/goods/add_category',$qs.stringify(data)).then((res: any) => {
+				if (res.code === 200) {
+					resolve(res);
+				} else {
+					this.err(res.msg);
+					reject(res);
+				}
+			})
+		})
+	}
+	editCategory(data={}){
+		return new Promise((resolve, reject) => {
+			this.request.post('/goods/edit_category',$qs.stringify(data)).then((res: any) => {
+				if (res.code === 200) {
+					resolve(res);
+				} else {
+					this.err(res.msg);
+					reject(res);
+				}
+			})
+		})
+	}
+	delCategory(data={}){
+		return new Promise((resolve, reject) => {
+			this.request.post('/goods/del_category',$qs.stringify(data)).then((res: any) => {
+				if (res.code === 200) {
+					resolve(res);
+				} else {
+					this.err(res.msg);
+					reject(res);
+				}
+			})
+		})
+	}
+	BrandList(data={}){
+		return new Promise((resolve, reject) => {
+			this.request.get('/goods/brand_list',{params:data}).then((res: any) => {
+				if (res.code === 200) {
+					resolve(res);
+				} else {
+					this.err(res.msg);
+					reject(res);
+				}
+			})
+		})
+	}
+	
+	
+	
+	
+
+
+
+
+
+
+
+
+	exportOrders(data={}){
+		return new Promise((resolve, reject) => {
+			this.request.post('orders/export_orders',$qs.stringify(data)).then((res: any) => {
+				if (res.code === 200) {
+					resolve(res);
+				} else {
+					this.err(res.msg);
+					reject(res);
+				}
+			})
+		})
+	}
+	
 }
