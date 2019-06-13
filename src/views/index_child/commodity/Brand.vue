@@ -1,19 +1,14 @@
 <template>
     <div>
-        <div class="head">
+        <div class="head" v-show="editing==1">
             <div class="search">
-                <el-input placeholder="公司" v-model="search.company"></el-input>
-            </div>
-            <div class="search">
-                <el-input placeholder="电话" v-model="search.phone"></el-input>
-            </div>
-            <div class="search">
-                <el-input placeholder="姓名" v-model="search.name"></el-input>
+                <el-input placeholder="品牌名称" v-model="search.name"></el-input>
             </div>
             <el-button class="btn" @click="searchFun">搜索</el-button>
             <el-button @click="searchEmpty">清空</el-button>
+            <el-button type="primary" @click="editing = 3"><i class="el-icon-plus">添加新品牌</i></el-button>
         </div>
-        <div class="body_box">
+        <div class="body_box" v-show="editing==1">
             <el-table :data="tableData" class="table" v-loading="loads.table" @sort-change="tableSort">
                 <el-table-column label="序号" width="50">
                     <template slot-scope="scope">
@@ -22,46 +17,124 @@
                         </div>
                     </template>
                 </el-table-column>
-                <el-table-column prop="company" label="店铺名称"></el-table-column>
-                <el-table-column prop="address" label="所在地区"></el-table-column>
-                <el-table-column prop="products" label="主营产品"></el-table-column>
-                <el-table-column prop="name" label="联系人"></el-table-column>
-                <el-table-column prop="phone" label="联系电话"></el-table-column>
-                <el-table-column prop="remark" label="备注"></el-table-column>
-                <el-table-column prop="addtime" label="申请时间" sortable="custom"></el-table-column>
-                <el-table-column prop="status" label="状态">
+                <el-table-column prop="name" label="品牌名称"></el-table-column>
+                <el-table-column label="品牌网址">
                     <template slot-scope="scope">
-                        <span :style="scope.row.status==3?'color:red;cursor: pointer;':''" @click="seeRej(scope.row)">
-                            {{scope.row.status==1?'待审核':scope.row.status==3?'未通过':scope.row.status==2?'已通过':''}}
-                        </span>
+                        <a :href="scope.row.url" target="_blank">{{scope.row.url}}</a>
                     </template>
                 </el-table-column>
-                <el-table-column prop="reg_time" label="证件">
+                <el-table-column label="品牌logo">
                     <template slot-scope="scope">
-                        <span style="color: #26921c;cursor: pointer;" @click="seeZj(scope.row)">
-                            查看证件
+                        <div class="img_logo">
+                            <img :src="url+scope.row.logo" alt="">
+                        </div>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="sort" label="显示排序"></el-table-column>
+                <el-table-column label="是否推荐" align="center">
+                    <template slot-scope="scope">
+                        <span>
+                            {{scope.row.is_recommend==1?'推荐':'不推荐'}}
+                            <el-button icon="el-icon-search" circle @click="changwreco"></el-button>
                         </span>
                     </template>
                 </el-table-column>
                 <el-table-column label="操作" align="center">
                     <template slot-scope="scope">
-                        <div v-if="scope.row.status==1">
-                            <el-button size="mini" type="primary" @click="approved(scope.row)">通过</el-button>
-                            <el-button type="info" size="mini" @click="reject(scope.row)">驳回</el-button>
+                        <div>
+                            <el-button size="mini" type="primary" @click="changeBrand(scope.row)"><i
+                                    class="el-icon-edit-outline"></i>编辑</el-button>
+                            <el-button type="danger" size="mini" @click="delBrand(scope.row)"><i
+                                    class="el-icon-delete-solid"></i>删除</el-button>
                         </div>
                     </template>
                 </el-table-column>
             </el-table>
         </div>
-        <div class="foot_pagination">
+        <div class="foot_pagination" v-show="editing==1">
             <el-pagination layout="prev, pager, next" :total="pageInfo.total" :page-size="pageInfo.limit"
                 :current-page="pageInfo.nowPage" @current-change="pageChange"></el-pagination>
         </div>
-        
-        <el-dialog :visible.sync="dialogVisible" title="查看证件" width="70%" :modal="false">
-            
-            <vue-ueditor-wrap v-model="msg" style="z-index: 9999999999999999999999999999999999999999"></vue-ueditor-wrap>
-        </el-dialog>
+
+        <div class="body_box" v-if="editing==2">
+            <el-button size="mini" type="primary" @click="editing=1">返回</el-button>
+            <div class="edit_box">
+                <el-form :model="form" label-width="180px">
+                    <el-form-item label="品牌名称">
+                        <el-col :span="12">
+                            <el-input v-model="form.name"></el-input>
+                        </el-col>
+                    </el-form-item>
+                    <el-form-item label="网址">
+                        <el-col :span="12">
+                            <el-input v-model="form.url"></el-input>
+                        </el-col>
+                    </el-form-item>
+                    <el-form-item label="LOGO">
+                        <el-col :span="12">
+                            <img class="loge_img" v-if="form.loge" :src="url + form.loge" @click="changeLogo">
+                        </el-col>
+                    </el-form-item>
+                    <el-form-item label="品牌分类">
+                        <el-checkbox-group v-model="form.cates">
+                            <el-checkbox v-for="c in cateData" :label="c.id" :key="c.id">{{c.name}}</el-checkbox>
+                        </el-checkbox-group>
+                    </el-form-item>
+                    <el-form-item label="品牌简介">
+                        <vue-ueditor-wrap v-model="form.msg" :config="myConfig"></vue-ueditor-wrap>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button size="mini" type="primary" @click="saveBrand">保存</el-button>
+                    </el-form-item>
+                </el-form>
+            </div>
+            <el-dialog :visible.sync="dialogVisible2" title="上传LOGO" width="40%" center>
+                <div class="upload_box">
+                    <el-upload class="upload-demo" drag action="w" multiple :before-upload="uploadLogo">
+                        <i class="el-icon-upload"></i>
+                        <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+                    </el-upload>
+                </div>
+            </el-dialog>
+        </div>
+
+        <div class="body_box" v-if="editing==3">
+            <el-button size="mini" type="primary" @click="editing=1">返回</el-button>
+            <div class="edit_box">
+                <el-form :model="addform" label-width="180px">
+                    <el-form-item label="品牌名称">
+                        <el-col :span="12">
+                            <el-input v-model="addform.name"></el-input>
+                        </el-col>
+                    </el-form-item>
+                    <el-form-item label="网址">
+                        <el-col :span="12">
+                            <el-input v-model="addform.url"></el-input>
+                        </el-col>
+                    </el-form-item>
+                    <el-form-item label="LOGO">
+                        <el-col :span="12">
+                            <img class="loge_img" v-if="addform.loge" :src="url + addform.loge" @click="changeLogo">
+                            <el-upload v-else drag action="w" multiple :before-upload="uploadaddLogo">
+                                <i class="el-icon-upload"></i>
+                                <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+                            </el-upload>
+                        </el-col>
+                    </el-form-item>
+                    <el-form-item label="品牌分类">
+                        <el-checkbox-group v-model="addform.cates">
+                            <el-checkbox v-for="c in cateData" :label="c.id" :key="c.id">{{c.name}}</el-checkbox>
+                        </el-checkbox-group>
+                    </el-form-item>
+                    <el-form-item label="品牌简介">
+                        <vue-ueditor-wrap v-model="addform.msg" :config="myConfig"></vue-ueditor-wrap>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button size="mini" type="primary" @click="addBrand">保存</el-button>
+                    </el-form-item>
+                </el-form>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -75,54 +148,31 @@
         imgUrl
     } from '@/plugins/request';
     import $utils from '@/plugins/common';
-    import member from '@/views/index_child/member/User.vue';
-    import changeDraler from '@/components/changeDealer.vue';
-    import VueUeditorWrap from 'vue-ueditor-wrap';
     import {
         Notification,
         MessageBox
     } from 'element-ui';
 
-    class Applyy {
-        address: string; //地址
-        addtime: string; //申请时间
-        area: string; //地区id？
-        city: string; //市
-        province: string; //省
-        company: string; //公司名
+    import VueUeditorWrap from 'vue-ueditor-wrap';
+
+    class Brandd {
+        cids: string;
+        content: string;
         id: string;
-        name: string; //联系人
-        optdt: string;
-        optid: string;
-        optname: string;
-        phone: string; //电话
-        products: string; //产品
-        rejected: string; //拒绝理由
-        remark: string; //备注
-        sfz_img: string; //身份证
-        status: string; //1待审核 3未通过（拒绝） 2已通过 
-        user_id: string;
-        yyzz_img: string; //营业执照
+        is_recommend: string;
+        logo: string;
+        name: string;
+        sort: string;
+        url: string;
         constructor(o: any) {
-            this.address = o.address;
-            this.addtime = o.addtime;
-            this.area = o.area;
-            this.city = o.city;
-            this.company = o.company;
+            this.cids = o.cids;
+            this.content = o.content;
             this.id = o.id;
+            this.is_recommend = o.is_recommend;
+            this.logo = o.logo;
             this.name = o.name;
-            this.optdt = o.optdt;
-            this.optid = o.optid;
-            this.optname = o.optname;
-            this.phone = o.phone;
-            this.products = o.products;
-            this.province = o.province;
-            this.rejected = o.rejected;
-            this.remark = o.remark;
-            this.sfz_img = o.sfz_img;
-            this.status = o.status;
-            this.user_id = o.user_id;
-            this.yyzz_img = o.yyzz_img;
+            this.sort = o.sort;
+            this.url = o.url;
         }
     }
     class PageInfo {
@@ -141,37 +191,58 @@
             VueUeditorWrap
         }
     })
-    export default class Apply extends Vue {
+    export default class Brand extends Vue {
         http!: $api;
-        url:string = imgUrl;
-        tableData: Applyy[] = [];
+        url: string = imgUrl;
+        tableData: Brandd[] = [];
         loads: any = {
             table: false
         }
         search: any = {
-            company: '',
-            phone: '',
             name: '',
-            order: ''
         }
         dialogVisible: boolean = false;
         dialogVisible2: boolean = false;
+        editing: number = 1;
         nowDid: string = '';
         nowshowid: string = '';
         timer: any = null;
-        msg:string='';
+        cateData: any[] = [];
+        form: any = {
+            cates: [],
+            name: '',
+            url: '',
+            loge: '',
+            msg: '',
+        }
+        addform: any = {
+            cates: [],
+            name: '',
+            url: '',
+            loge: '',
+            msg: '',
+        }
 
+
+        myConfig: any = {
+            // 编辑器不自动被内容撑高
+            autoHeightEnabled: false,
+            // 初始容器高度
+            initialFrameHeight: 400,
+            // 初始容器宽度
+            initialFrameWidth: '99%',
+            // 上传文件接口（这个地址是我为了方便各位体验文件上传功能搭建的临时接口，请勿在生产环境使用！！！）
+            serverUrl: 'http://35.201.165.105:8000/controller.php',
+        }
         pageInfo: PageInfo = new PageInfo(0, 1, 0);
 
-        imgs:any = {
-            f:'',t:'',s:''
-        }
 
         created() {
             this.http = new $api();
             this.getList();
-            console.log(process.env.BASE_URL);
-            
+            this.http.brandInfo().then((res: any) => {
+                this.cateData = res.data.category
+            })
         }
 
         getList() {
@@ -179,12 +250,10 @@
             this.http.BrandList({
                 page: this.pageInfo.nowPage,
                 name: this.search.name,
-                company: this.search.company,
-                order_by: this.search.order
             }).then((res: any) => {
                 this.tableData = [];
                 res.data.data.forEach((r: any) => {
-                    this.tableData.push(new Applyy(r));
+                    this.tableData.push(new Brandd(r));
                 });
                 this.setPage(res.data);
                 this.loads.table = false;
@@ -208,10 +277,7 @@
         searchEmpty() {
             if (this.search.name == '' && this.search.phone == '') return;
             this.search = {
-                company: '',
-                phone: '',
                 name: '',
-                order: this.search.order
             }
             this.getList();
         }
@@ -228,102 +294,130 @@
             this.getList();
         }
 
-        seeZj(row: Applyy) {
-            this.dialogVisible = true;
-            let imgs = row.sfz_img.split(',');
-            this.imgs={
-                f:imgs[0],
-                t:imgs[1],
-                s:row.yyzz_img
+
+        uploadaddLogo(file: any) {
+            let fd = new FormData();
+            fd.append('fileToUpload', file);
+            this.http.uploadLogo(fd).then((res: any) => {
+                Notification({
+                    title: '成功',
+                    dangerouslyUseHTMLString: true,
+                    message: '<strong style="color:#3CB371">上传成功</strong>',
+                    showClose: false
+                });
+                this.addform.loge = res.data.url;
+            })
+            return false;
+        }
+        uploadLogo(file: any) {
+            let fd = new FormData();
+            fd.append('fileToUpload', file);
+            this.http.uploadLogo(fd).then((res: any) => {
+                Notification({
+                    title: '成功',
+                    dangerouslyUseHTMLString: true,
+                    message: '<strong style="color:#3CB371">上传成功</strong>',
+                    showClose: false
+                });
+                this.form.loge = res.data.url;
+                this.dialogVisible2 = false;
+            })
+            return false;
+        }
+        changeBrand(row: Brandd) {
+            this.form = {
+                id: row.id,
+                cates: row.cids == '' ? [] : JSON.parse(row.cids),
+                name: row.name,
+                url: row.url,
+                loge: row.logo,
+                msg: row.content,
+                isre: row.is_recommend
             }
+            this.editing = 2;
         }
-        newWindow(e:any){
-            window.open(e.target.src,'_blank');
-        }
-        seeRej(row: Applyy) {
-            MessageBox.confirm(row.rejected, '驳回理由', {
-                confirmButtonText: '确定',
-                showCancelButton: false,
-                type: 'info',
-                center: true
-            }).catch(() => {
-
+        saveBrand() {
+            this.http.editBrand({
+                id: this.form.id,
+                name: this.form.name,
+                url: this.form.url,
+                logo: this.form.loge,
+                content: this.form.msg,
+                is_recommend: this.form.isre,
+                cids: JSON.stringify(this.form.cates),
+            }).then((res: any) => {
+                this.getList();
+                this.editing = 1;
+                Notification({
+                    title: '成功',
+                    dangerouslyUseHTMLString: true,
+                    message: '<strong style="color:#3CB371">修改成功</strong>',
+                    showClose: false
+                });
+                this.form = {
+                    id: '',
+                    cates: '',
+                    name: '',
+                    url: '',
+                    loge: '',
+                    msg: '',
+                    isre: '',
+                }
             })
         }
-        approved(row: Applyy) {
-            MessageBox.confirm('同意 ' + row.company + ' 的申请', '通过', {
+        addBrand() {
+            this.http.addBrand({
+                name: this.addform.name,
+                url: this.addform.url,
+                logo: this.addform.loge,
+                content: this.addform.msg,
+                cids: JSON.stringify(this.addform.cates),
+            }).then((res: any) => {
+                this.getList();
+                this.editing = 1;
+                Notification({
+                    title: '成功',
+                    dangerouslyUseHTMLString: true,
+                    message: '<strong style="color:#3CB371">修改成功</strong>',
+                    showClose: false
+                });
+                this.addform = {
+                    id: '',
+                    cates: '',
+                    name: '',
+                    url: '',
+                    loge: '',
+                    msg: '',
+                    isre: '',
+                }
+            })
+        }
+        changeLogo() {
+            this.dialogVisible2 = true;
+        }
+        delBrand(row:Brandd) {
+            MessageBox.confirm('确定要删除‘ ' + row.name + ' ’这个品牌吗？', '删除', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'info',
-                center: true,
-            }).then((res: any) => {
-                let liyou = res.value;
-                this.http.approvedApply({
+            }).then(() => {
+                this.http.delBrand({
                     id: row.id,
                 }).then((res: any) => {
                     this.getList();
                     Notification({
                         title: '成功',
                         dangerouslyUseHTMLString: true,
-                        message: '<strong style="color:#3CB371">已通过申请</strong>',
+                        message: '<strong style="color:#3CB371">删除成功</strong>',
                         showClose: false
                     });
                 })
             })
         }
-        reject(row: Applyy) {
-            MessageBox.confirm('驳回 ' + row.company + ' 申请的理由', '驳回', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'info',
-                center: true,
-                showInput: true,
-                inputType: 'textarea'
-            }).then((res: any) => {
-                let liyou = res.value;
-                this.http.rejectedApply({
-                    id: row.id,
-                    content: liyou
-                }).then((res: any) => {
-                    this.getList();
-                    Notification({
-                        title: '成功',
-                        dangerouslyUseHTMLString: true,
-                        message: '<strong style="color:#3CB371">已驳回申请</strong>',
-                        showClose: false
-                    });
-                })
-            })
-        }
-
     }
 </script>
 
 <style lang="scss">
-    .jujue {
-        width: 350px;
-        resize: none;
-        height: 300px;
-        font-size: 24px;
-    }
-
-    .showImg {
-        width: 100%;
-        height: 500px;
-        display: flex;
-        justify-content: space-between;
-
-        .one_img {
-            width: 30%;
-            height: 100%;
-            overflow: hidden;
-
-            img {
-                width: 100%;
-            }
-        }
-    }
-
     .head {
         display: flex;
 
@@ -354,6 +448,30 @@
 
         .mini {
             padding: 5px 2px;
+        }
+
+        .img_logo {
+            height: 140px;
+
+            img {
+                height: 100%;
+            }
+        }
+
+        .edit_box {
+            width: 90%;
+            margin-left: 1%;
+
+            .loge_img {
+                width: 200px;
+                cursor: pointer;
+            }
+        }
+
+        .upload_box {
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
     }
 </style>

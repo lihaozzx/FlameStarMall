@@ -26,7 +26,9 @@ import {
 	Radio,
 	RadioButton,
 	RadioGroup,
-	Loading
+	Loading,
+	Upload,
+ 
 } from 'element-ui';
 
 Vue.use(Button);
@@ -61,6 +63,8 @@ Vue.use(Radio);
 Vue.use(RadioButton);
 Vue.use(RadioGroup);
 Vue.use(Loading.directive);
+
+Vue.use(Upload);
 
 Vue.prototype.$loading = Loading.service;
 

@@ -432,6 +432,81 @@ export default class extends Vue {
 			})
 		})
 	}
+	brandInfo(data={}){
+		return new Promise((resolve, reject) => {
+			this.request.post('/goods/brand_info',$qs.stringify(data)).then((res: any) => {
+				if (res.code === 200) {
+					resolve(res);
+				} else {
+					this.err(res.msg);
+					reject(res);
+				}
+			})
+		})
+	}
+	addBrand(data={}){
+		return new Promise((resolve, reject) => {
+			this.request.post('/goods/add_brand',$qs.stringify(data)).then((res: any) => {
+				if (res.code === 200) {
+					resolve(res);
+				} else {
+					this.err(res.msg);
+					reject(res);
+				}
+			})
+		})
+	}
+	editBrand(data={}){
+		return new Promise((resolve, reject) => {
+			this.request.post('/goods/edit_brand',$qs.stringify(data)).then((res: any) => {
+				if (res.code === 200) {
+					resolve(res);
+				} else {
+					this.err(res.msg);
+					reject(res);
+				}
+			})
+		})
+	}
+	delBrand(data={}){
+		return new Promise((resolve, reject) => {
+			this.request.post('/goods/del_brand',$qs.stringify(data)).then((res: any) => {
+				if (res.code === 200) {
+					resolve(res);
+				} else {
+					this.err(res.msg);
+					reject(res);
+				}
+			})
+		})
+	}
+	isRecommend(data={}){
+		return new Promise((resolve, reject) => {
+			this.request.post('/goods/is_recommend',$qs.stringify(data)).then((res: any) => {
+				if (res.code === 200) {
+					resolve(res);
+				} else {
+					this.err(res.msg);
+					reject(res);
+				}
+			})
+		})
+	}
+
+	uploadLogo(data={}){
+		return new Promise((resolve, reject) => {
+			this.request.post('/goods/brand_logo_up',data).then((res: any) => {
+				if (res.code === 200) {
+					resolve(res);
+				} else {
+					this.err(res.msg);
+					reject(res);
+				}
+			})
+		})
+	}
+
+	
 	
 	
 	
